@@ -1,0 +1,135 @@
+import pandas as pd
+import numpy as np
+import math
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# This is to ensure the matrix values are in an integer format
+np.set_printoptions(suppress=True, precision=2)
+
+# the data is loaded into a data frame for analysis
+#you need to put the csv file path here
+df = pd.read_csv(
+    "/Users/Takyi/Desktop/ISEHSA/year2sem2/linear algebra/synthetic_players.csv",
+    nrows=15,
+)
+
+
+# print(df.head())
+
+# this is the variables of the data not included for the matrix (like name, country, age, etc)
+# temp_df = df[['player_id', 'name','position','age','nationality','league']]
+# print(temp_df.head())
+
+# columns needed for the matrix formation (numeric)
+# contains nnull values not yet worked on
+matrix_df = df[
+    [
+        "pace",
+        "dribbling",
+        "passing_accuracy",
+        "shooting",
+        "tackling",
+        "aerial_duels_won_pct",
+        "positioning",
+        "stamina",
+        "goals_per90",
+        "assists_per90",
+        "estimated_value_eur_m",
+    ]
+]
+
+
+# convert the data to amatrix format
+# each row contains a player's attribute.
+
+matrix = matrix_df.to_numpy()
+
+# initiliaze the size of the final matrix containing euclidean values
+
+euclidean_matrix = np.zeros((len(matrix), len(matrix)))
+
+# to loop through the matrix for a given row
+for i in range(len(matrix)):
+    for j in range(len(matrix)):
+        # difference between a given row and the remaining rows
+        difference = matrix[i] - matrix[j]
+
+        total = 0
+
+        # calculate the total of square of the differennce value
+        # basically accomplishin (x2 - x1)**2 + (y2 - y1)**2
+        for value in difference:
+            total += pow(value, 2)
+
+        # get the final euclidean value
+        euclidean_distance = math.sqrt(total)
+
+        euclidean_matrix[i][j] = euclidean_distance
+
+# show the values in the terminal
+# print(euclidean_matrix)
+
+# heatmap implementation
+sns.heatmap(
+    euclidean_matrix,
+    annot=True,
+    cmap="coolwarm",
+    xticklabels=df[["name"]].to_numpy(),
+    yticklabels=df[["name"]].to_numpy(),
+)
+
+
+plt.show()
+
+# #Radar chart GUIDE
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+
+# # 1. Define your metrics (the axes labels around the circle)
+# categories = [
+#     'Final Product', 'Shooting Volume', 'Own Shot Gen', 'Finishing Quality',
+#     'Creation Passes', 'Creation Carries', 'Dribbling', 'Progression',
+#     'Pass Accuracy', 'Active Defending', 'Total VAEP'
+# ]
+# num_vars = len(categories)
+
+# # 2. Split the circle into equal angles for each metric
+# angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+
+# # The radar chart needs to "close the loop", so append the start value to the end
+# angles += angles[:1]
+
+# # 3. Add data for both profiles (e.g., Estêvão vs Jamie Gittens)
+# # Values should range from 0 to 100 for percentiles
+# player_1_data = [96, 92, 97, 58, 72, 99, 99, 82, 48, 80, 99]
+# player_2_data = [53, 14, 21, 11, 75, 91, 91, 58, 46, 79, 46]
+
+# player_1_data += player_1_data[:1]
+# player_2_data += player_2_data[:1]
+
+# # 4. Initialize the plot with dark styling matching your image
+# plt.style.use('dark_background')
+# fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+
+# # Draw one axe per variable and add labels
+# plt.xticks(angles[:-1], categories, color='grey', size=10)
+
+# # Draw y-axis gridlines (percentile rings from 0 to 100)
+# ax.set_rlabel_position(0)
+# plt.yticks([20, 40, 60, 80, 100], ["20", "40", "60", "80", "100"], color="grey", size=7)
+# plt.ylim(0, 100)
+
+# # 5. Plot Player 1 (Teal Line + Dots)
+# ax.plot(angles, player_1_data, color='#00ffcc', linewidth=2, marker='o', label='Estêvão')
+# ax.fill(angles, player_1_data, color='#00ffcc', alpha=0.1)
+
+# # 6. Plot Player 2 (Purple Line + Dots)
+# ax.plot(angles, player_2_data, color='#cc66ff', linewidth=2, marker='o', label='Jamie Gittens')
+# ax.fill(angles, player_2_data, color='#cc66ff', alpha=0.1)
+
+# # Add Legend
+# plt.legend(loc='upper right', bbox_transform=fig.transFigure)
+
+# plt.show()
