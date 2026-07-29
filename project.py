@@ -39,8 +39,20 @@ matrix_df = df[
     ]
 ]
 
+# encode the positions to integers, based on where they lie in the position matrix
+encoding = {
+    'GK': 0,
+    'CM': 1,
+    'CAM': 2,
+    'FB': 3,
+    'CB': 4,
+    'ST': 5
+}
 
-# convert the data to amatrix format
+# create a new column to house the encoded positions.
+df['position_encoded'] = df['position'].map(encoding)
+
+# convert the data to a matrix format
 # each row contains a player's attribute.
 
 matrix = matrix_df.to_numpy()
@@ -48,6 +60,16 @@ matrix = matrix_df.to_numpy()
 # initiliaze the size of the final matrix containing euclidean values
 
 euclidean_matrix = np.zeros((len(matrix), len(matrix)))
+
+position_distance = np.array([
+    # GK CM CAM FB CB ST
+    [0, 4, 4, 4, 3, 4],  # GK
+    [4, 0, 1, 2, 3, 2],  # CM
+    [4, 1, 0, 3, 4, 1],  # CAM
+    [4, 2, 3, 0, 1, 4],  # FB
+    [3, 3, 4, 1, 0, 4],  # CB
+    [4, 2, 1, 4, 4, 0],  # ST
+])
 
 # to loop through the matrix for a given row
 for i in range(len(matrix)):
@@ -61,6 +83,13 @@ for i in range(len(matrix)):
         # basically accomplishin (x2 - x1)**2 + (y2 - y1)**2
         for value in difference:
             total += pow(value, 2)
+
+        # priority is given to positional similarity by 
+        # giving players in matching positions an advantage, 
+        # even though superior players from other positions can still outrank them.
+
+        # NOTE: what would be required? the position, then looking it up in the matrix, and then adding it to the euclidian distance
+        
 
         # get the final euclidean value
         euclidean_distance = math.sqrt(total)
