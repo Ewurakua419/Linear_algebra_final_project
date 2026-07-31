@@ -71,6 +71,8 @@ position_distance = np.array([
     [4, 2, 1, 4, 4, 0],  # ST
 ])
 
+position_weight = 2
+
 # to loop through the matrix for a given row
 for i in range(len(matrix)):
     for j in range(len(matrix)):
@@ -91,10 +93,19 @@ for i in range(len(matrix)):
         # NOTE: what would be required? the position, then looking it up in the matrix, and then adding it to the euclidian distance
         
 
-        # get the final euclidean value
+        # get the euclidean value
         euclidean_distance = math.sqrt(total)
 
-        euclidean_matrix[i][j] = euclidean_distance
+        # get the encoded version of the position of both players.
+        player1_position = df.loc[i, "position_encoded"]
+        player2_position = df.loc[j, "position_encoded"]
+
+        #obtain the penalty from the positon distance matrix.
+        position_penalty = position_distance[player1_position][player2_position]
+
+        euclidean_matrix[i][j] = euclidean_distance + position_weight * position_penalty #add the position penalty with a weight to the final euclidian distance.
+
+        #the weight can be adjusted based on how important we want the position to be.
 
 # show the values in the terminal
 # print(euclidean_matrix)
