@@ -91,7 +91,7 @@ class Players:
                 player2_position = self.df.loc[j, "position_encoded"]
 
                 # obtain the penalty from the positon distance matrix.
-                position_penalty = position_distance[player1_position][player2_position]
+                position_penalty = position_distance[player1_position][player2_position] # type: ignore
 
                 self.euclidean_matrix[i][j] = euclidean_distance + position_weight * position_penalty #add the position penalty with a weight to the final euclidian distance.
 
