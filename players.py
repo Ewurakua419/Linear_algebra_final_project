@@ -7,8 +7,70 @@ import matplotlib.pyplot as plt
 class Players:
 
     def __init__(self, file="synthetic_players.csv", num=0):
+        # np.set_printoptions(suppress=True, precision=2)
+        # self.file=file
+        # encoding = {
+        #             'GK': 0,
+        #             'CM': 1,
+        #             'CAM': 2,
+        #             'FB': 3,
+        #             'CB': 4,
+        #             'ST': 5
+        #         }
+
+        # """if num==0:
+        #     self.df = pd.read_csv("synthetic_players.csv")
+        # else:
+        #     self.df = pd.read_csv(
+        #         "synthetic_players.csv",
+        #         nrows=num,
+        #     )"""
+
+        # try:
+        #     with open(str(self.file), "r") as file:
+        #         if num==0:
+        #             self.df = pd.read_csv(file)
+        #         else:
+        #             self.df = pd.read_csv(file, nrows=num)
+
+        #         # create a new column to house the encoded positions.
+        #         print("Success")
+
+        # except FileNotFoundError:
+        #     if num==0:
+        #         self.df = pd.read_csv("synthetic_players.csv")
+        #     else:
+        #         self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
+        #     print(f"Error: The file {self.file} does not exist. We shall use synthetic data")
+
+        # self.df['position_encoded'] = self.df['position'].map(encoding)
+
+        # # the column names might not be the same across different data sets
+        # self.matrix_df = self.df[
+        #                 [
+        #                     "pace",
+        #                     "dribbling",
+        #                     "passing_accuracy",
+        #                     "shooting",
+        #                     "tackling",
+        #                     "aerial_duels_won_pct",
+        #                     "positioning",
+        #                     "stamina",
+        #                     "goals_per90",
+        #                     "assists_per90",
+        #                     "estimated_value_eur_m",
+        #                 ]
+        #             ]
+        # self.matrix_df=self.matrix_df.columns.str.strip()
+
+        # self.matrix_df = self.matrix_df.fillna(0)
+        # self.matrix = self.matrix_df.to_numpy()
+
         np.set_printoptions(suppress=True, precision=2)
         self.file=file
+
+        self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
+
         encoding = {
                     'GK': 0,
                     'CM': 1,
@@ -18,34 +80,6 @@ class Players:
                     'ST': 5
                 }
 
-        """if num==0:
-            self.df = pd.read_csv("synthetic_players.csv")
-        else:
-            self.df = pd.read_csv(
-                "synthetic_players.csv",
-                nrows=num,
-            )"""
-
-        try:
-            with open(str(self.file), "r") as file:
-                if num==0:
-                    self.df = pd.read_csv(file)
-                else:
-                    self.df = pd.read_csv(file, nrows=num)
-
-                # create a new column to house the encoded positions.
-                print("Success")
-
-        except FileNotFoundError:
-            if num==0:
-                self.df = pd.read_csv("synthetic_players.csv")
-            else:
-                self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
-            print(f"Error: The file {self.file} does not exist. We shall use synthetic data")
-
-        self.df['position_encoded'] = self.df['position'].map(encoding)
-
-        # the column names might not be the same across different data sets
         self.matrix_df = self.df[
                         [
                             "pace",
@@ -61,10 +95,16 @@ class Players:
                             "estimated_value_eur_m",
                         ]
                     ]
-        self.matrix_df=self.matrix_df.columns.str.strip()
+
+        self.df['position_encoded'] = self.df['position'].map(encoding)
+
+        self.matrix_df.columns = self.matrix_df.columns.str.strip()
+        self.matrix_df = self.matrix_df.fillna(0)
 
     def euclidean_distance(self):
-        self.matrix = self.matrix_df.to_numpy(dtype =float)
+        
+        self.matrix = self.matrix_df.to_numpy()
+
         self.euclidean_matrix = np.zeros((len(self.matrix), len(self.matrix)))
         position_distance = np.array(
             [
@@ -112,6 +152,7 @@ class Players:
         sns.heatmap(
             self.euclidean_matrix_pd.loc[:, self.euclidean_matrix_pd.columns != "name"],
             annot=True,
+            fmt = ".0f",
             cmap="coolwarm",
             xticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
             yticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
@@ -164,5 +205,68 @@ class Players:
         except:
             print("Please ensure that the matrix has the correct structure")
             return None
+
+
+    def display_graph(self, p1, p2):
+
+        categories = [
+                            
+                        "pace",
+                        "dribbling",
+                        "passing_accuracy",
+                        "shooting",
+                        "tackling",
+                        "aerial_duels_won_pct",
+                        "positioning",
+                        "stamina",
+                        "goals_per90",
+                        "assists_per90",
+                        "estimated_value_eur_m" ]
+
+
+        num_vars = len(categories)
+
+        angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+
+        angles += angles[:1]
+
+        p1_data = self.df[self.df['name'].str.lower() == p1.lower()]
+        p2_data = self.df[self.df['name'].str.lower() == p2.lower()]
+
+        p1_values = p1_data[categories].iloc[0].tolist()
+        p2_values = p2_data[categories].iloc[0].tolist()
+
+        p1_values += p1_values[:1]
+        p2_values += p1_values[:1]
+
+        
+        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'polar': True})
+        ax.set_thetagrids(np.degrees(angles[:-1]), categories, color='grey', size=10)
+        ax.set_rlabel_position(0)
+
+        plt.yticks([20, 40, 60, 80, 100], ["20", "40", "60", "80", "100"], color="grey", size=7)
+        plt.ylim(0, 100)
+
+        # 5. Plot Player 1 (Teal Line + Dots)
+        ax.plot(angles, p1_values, color="#7a9d2e", linewidth=2, marker='o', label=p1)
+        ax.fill(angles, p1_values, color="#7a9d2e", alpha=0.1)
+
+        # 6. Plot Player 2 (Purple Line + Dots)
+        ax.plot(angles, p2_values, color="#2931A4", linewidth=2, marker='o', label=p2)
+        ax.fill(angles, p2_values, color="#2931A4", alpha=0.1)
+
+        # Add Legend
+        plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1))
+
+        plt.show()
+
+
+
+
+
+
+
+
+
 
         
