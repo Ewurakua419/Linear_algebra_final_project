@@ -39,6 +39,9 @@ matrix_df = df[
     ]
 ]
 
+# collect the names of the list of players
+player_names = df['name'].tolist()
+
 # encode the positions to integers, based on where they lie in the position matrix
 encoding = {
     'GK': 0,
@@ -111,16 +114,16 @@ for i in range(len(matrix)):
 # print(euclidean_matrix)
 
 # heatmap implementation
-sns.heatmap(
-    euclidean_matrix,
-    annot=True,
-    cmap="coolwarm",
-    xticklabels=df[["name"]].to_numpy(),
-    yticklabels=df[["name"]].to_numpy(),
-)
+# sns.heatmap(
+#     euclidean_matrix,
+#     annot=True,
+#     cmap="coolwarm",
+#     xticklabels=df[["name"]].to_numpy(),
+#     yticklabels=df[["name"]].to_numpy(),
+# )
 
 
-plt.show()
+# plt.show()
 
 # #Radar chart GUIDE
 
