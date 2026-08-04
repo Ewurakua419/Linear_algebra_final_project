@@ -113,7 +113,7 @@ class Players:
         return plt.show()
 
     def similarity(self, num=3):
-        def mostsimn(row, num=3):
+        def mostsimn(row, num=num):
             # Filter out 0 values
             non_zero = row[row != 0]
             # Get the 3 smallest values and their column names
@@ -121,11 +121,40 @@ class Players:
 
             # Format the result as a list of "Column: Value" strings
             return [f"{col}" for col, val in smallest.items()]
+        try:
+            self.euclidean_matrix_pd["most similar 3"] = self.euclidean_matrix_pd.apply(
+                lambda row: mostsimn(row=row, num=num), axis=1
+            )
+            self.similar3 = pd.DataFrame(
+                {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd["most similar 3"]}
+            )
+            return self.similar3
+        except:
+            return None
 
-        self.euclidean_matrix_pd["most similar 3"] = self.euclidean_matrix_pd.apply(
-            lambda row: mostsimn(row=row, num=2), axis=1
-        )
-        self.similar3 = pd.DataFrame(
-            {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd["most similar 3"]}
-        )
-        return self.similar3
+    def remove(self, name):# remove a player weve used
+        if name in self.euclidean_matrix_pd["name"]:
+            new_matrix=self.euclidean_matrix_pd.drop(columns=[name])
+            new_matrix = new_matrix[new_matrix["name"] != name]
+            return new_matrix
+
+    def similarity_matrix(self, matrix,num=3): #do a new similarity check 
+        def mostsimn(row, num=num):
+            # Filter out 0 values
+            non_zero = row[row != 0]
+            # Get the 3 smallest values and their column names
+            smallest = non_zero.nsmallest(num)
+
+            # Format the result as a list of "Column: Value" strings
+            return [f"{col}" for col, val in smallest.items()]
+        try:
+            matrix["most similar 3"] = self.euclidean_matrix_pd.apply(
+                    lambda row: mostsimn(row=row, num=num), axis=1
+                )
+            similar3 = pd.DataFrame(
+                    {"player": matrix[["name"]].to_numpy().flatten(), "most similar":matrix["most similar 3"]}
+                )
+            return similar3
+        except:
+            print("Please ensure that the matrix has the correct structure")
+            return None
