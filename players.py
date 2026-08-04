@@ -161,13 +161,17 @@ class Players:
 
     def similarity(self, num=3):
         def mostsimn(row, num=num):
+
+            numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
+            
             # Filter out 0 values
-            non_zero = row[row != 0]
+            non_zero = numeric_row[numeric_row != 0]
             # Get the 3 smallest values and their column names
             smallest = non_zero.nsmallest(num)
 
             # Format the result as a list of "Column: Value" strings
             return [f"{col}" for col, val in smallest.items()]
+        
         try:
             self.euclidean_matrix_pd["most similar 3"] = self.euclidean_matrix_pd.apply(
                 lambda row: mostsimn(row=row, num=num), axis=1
@@ -176,8 +180,45 @@ class Players:
                 {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd["most similar 3"]}
             )
             return self.similar3
-        except:
+        except Exception as e:
+            print(f"Error calculating similarities: {e}")
             return None
+
+    # def similarity(self, num=3):
+    #     # Ensure the similarity matrix exists
+    #     if self.euclidean_matrix_pd is None or self.euclidean_matrix_pd.empty:
+    #         return None
+            
+    #     try:
+    #         results = {}
+            
+    #         # Iterate safely through each player's distance row
+    #         for player_name in self.euclidean_matrix_pd.index:
+    #             row = self.euclidean_matrix_pd.loc[player_name]
+                
+    #             # FIXED: Drop the player's own row label so they don't match with themselves
+    #             # This safely keeps valid '0' distances from other identical players
+    #             clean_row = row.drop(labels=[player_name], errors='ignore')
+                
+    #             # Find the N smallest distances (the closest matches)
+    #             smallest = clean_row.nsmallest(num)
+                
+    #             # Store the names of the closest matching players
+    #             results[player_name] = [f"{col}" for col in smallest.index]
+                
+    #         # Convert the dictionary cleanly into your final tracking DataFrame
+    #         self.similar3 = pd.DataFrame({
+    #             "player": list(results.keys()),
+    #             "most similar": list(results.values())
+    #         })
+            
+    #         return self.similar3
+            
+    #     except Exception as e:
+    #         print(f"Error calculating similarities: {e}")  # Helpful debugging feedback
+    #         return None
+
+        
 
     def remove(self, name):# remove a player we have used
         if name in self.euclidean_matrix_pd["name"]:
@@ -187,8 +228,11 @@ class Players:
 
     def similarity_matrix(self, matrix,num=3): #do a new similarity check 
         def mostsimn(row, num=num):
+
+            numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
+
             # Filter out 0 values
-            non_zero = row[row != 0]
+            non_zero = numeric_row[numeric_row != 0]
             # Get the 3 smallest values and their column names
             smallest = non_zero.nsmallest(num)
 
