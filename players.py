@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 class Players:
 
-    def __init__(self, file, num=0):
+    def __init__(self, file="synthetic_players.csv", num=0):
         np.set_printoptions(suppress=True, precision=2)
         self.file=file
         encoding = {
@@ -18,25 +18,29 @@ class Players:
                     'ST': 5
                 }
 
-        if num==0:
+        """if num==0:
             self.df = pd.read_csv("synthetic_players.csv")
         else:
             self.df = pd.read_csv(
                 "synthetic_players.csv",
                 nrows=num,
-            )
+            )"""
 
         try:
             with open(str(self.file), "r") as file:
                 if num==0:
-                    self.df = pd.read_csv(self.file)
+                    self.df = pd.read_csv(file)
                 else:
-                    self.df = pd.read_csv(self.file, nrows=num)
+                    self.df = pd.read_csv(file, nrows=num)
 
                 # create a new column to house the encoded positions.
                 print("Success")
 
         except FileNotFoundError:
+            if num==0:
+                self.df = pd.read_csv("synthetic_players.csv")
+            else:
+                self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
             print(f"Error: The file {self.file} does not exist. We shall use synthetic data")
 
         self.df['position_encoded'] = self.df['position'].map(encoding)
@@ -58,7 +62,7 @@ class Players:
         self.matrix_df=self.matrix_df.columns.str.strip()
 
     def euclidean_distance(self):
-        self.matrix = self.matrix_df.to_numpy()
+        self.matrix = self.matrix_df.to_numpy(dtype =float)
         self.euclidean_matrix = np.zeros((len(self.matrix), len(self.matrix)))
         position_distance = np.array(
             [
@@ -134,9 +138,9 @@ class Players:
 
     def remove(self, name):# remove a player weve used
         if name in self.euclidean_matrix_pd["name"]:
-            new_matrix=self.euclidean_matrix_pd.drop(columns=[name])
-            new_matrix = new_matrix[new_matrix["name"] != name]
-            return new_matrix
+            self.curr_matrix=self.euclidean_matrix_pd.drop(columns=[name])
+            self.curr_matrix = self.curr_matrix[self.curr_matrix["name"] != name]
+            return self.curr_matrix
 
     def similarity_matrix(self, matrix,num=3): #do a new similarity check 
         def mostsimn(row, num=num):
