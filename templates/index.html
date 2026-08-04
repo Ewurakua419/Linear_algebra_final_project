@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Scouting Similarity Report</title>
+    <!-- Simple CSS to center components and style the page -->
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f4f7f6;
+      }
+      .container {
+        text-align: center;
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+      select {
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        cursor: pointer;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Main Heading -->
+      <h1>Player Scouting Similarity Report</h1>
+      <p>Enter a player you want to find a replacement for....</p>
+
+      <!-- Searchable Input Field linked to the Datalist -->
+      <input
+        list="player-names"
+        name="choice"
+        id="choice-input"
+        placeholder="Eg. Thiago Kone"
+      />
+
+      <!-- The list of filtered options -->
+      <datalist id="player-names">
+        {% for name in player_names %}
+        <option value="{{name}}"></option>
+        {% endfor %}
+      </datalist>
+    </div>
+  </body>
+</html>
