@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 np.set_printoptions(suppress=True, precision=2)
 
 # the data is loaded into a data frame for analysis
-#you need to put the csv file path here
+# you need to put the csv file path here
 df = pd.read_csv(
-    "/Users/Takyi/Desktop/ISEHSA/year2sem2/linear algebra/synthetic_players.csv",
+    "synthetic_players.csv",
     nrows=15,
-)
+) #"/Users/Takyi/Desktop/ISEHSA/year2sem2/linear algebra/synthetic_players.csv",
 
 
 # print(df.head())
@@ -55,6 +55,10 @@ encoding = {
 # create a new column to house the encoded positions.
 df['position_encoded'] = df['position'].map(encoding)
 
+matrix_df.columns = matrix_df.columns.str.strip()
+matrix_df = matrix_df.fillna(0)
+
+
 # convert the data to a matrix format
 # each row contains a player's attribute.
 
@@ -89,12 +93,11 @@ for i in range(len(matrix)):
         for value in difference:
             total += pow(value, 2)
 
-        # priority is given to positional similarity by 
-        # giving players in matching positions an advantage, 
+        # priority is given to positional similarity by
+        # giving players in matching positions an advantage,
         # even though superior players from other positions can still outrank them.
 
         # NOTE: what would be required? the position, then looking it up in the matrix, and then adding it to the euclidian distance
-        
 
         # get the euclidean value
         euclidean_distance = math.sqrt(total)
@@ -103,28 +106,67 @@ for i in range(len(matrix)):
         player1_position = df.loc[i, "position_encoded"]
         player2_position = df.loc[j, "position_encoded"]
 
-        #obtain the penalty from the positon distance matrix.
-        position_penalty = position_distance[player1_position][player2_position]
+        # obtain the penalty from the positon distance matrix.
+        position_penalty = position_distance[player1_position][player2_position] # type: ignore
 
         euclidean_matrix[i][j] = euclidean_distance + position_weight * position_penalty #add the position penalty with a weight to the final euclidian distance.
 
-        #the weight can be adjusted based on how important we want the position to be.
+        # the weight can be adjusted based on how important we want the position to be.
 
 # show the values in the terminal
 # print(euclidean_matrix)
 
+# euclidean_matrix_clean =np.nan_to_num(euclidean_matrix, nan=-1)
+
 # heatmap implementation
-# sns.heatmap(
-#     euclidean_matrix,
-#     annot=True,
-#     cmap="coolwarm",
-#     xticklabels=df[["name"]].to_numpy(),
-#     yticklabels=df[["name"]].to_numpy(),
-# )
+sns.heatmap(
+    euclidean_matrix,
+    annot=True,
+    fmt =".0f",
+    cmap="coolwarm",
+    xticklabels=df[["name"]].to_numpy(),
+    yticklabels=df[["name"]].to_numpy(),
+)
 
 
 # plt.show()
 
+euclidean_matrix_pd = pd.DataFrame(
+    data=euclidean_matrix, columns=df[["name"]].to_numpy()
+)
+
+names = df[["name"]].to_numpy()
+names=names[:11]
+print(names)
+euclidean_matrix_pd = euclidean_matrix_pd.dropna(axis=1, how="all")
+euclidean_matrix_pd = euclidean_matrix_pd.dropna(axis=0, how="all")
+print(euclidean_matrix_pd)
+
+euclidean_matrix_pd_nan=euclidean_matrix_pd.mask(euclidean_matrix_pd==0)
+similar=pd.DataFrame({
+    "player":names.flatten(),
+    "most similar": euclidean_matrix_pd_nan.idxmin(axis=1)
+
+})
+print(similar)
+
+
+# def mostsimn(row, num=3):
+#     # Filter out 0 values
+#     non_zero = row[row != 0]
+#     # Get the 3 smallest values and their column names
+#     smallest = non_zero.nsmallest(num)
+
+#     # Format the result as a list of "Column: Value" strings
+#     return [f"{col}" for col, val in smallest.items()]
+
+# euclidean_matrix_pd["most similar 3"] = euclidean_matrix_pd.apply(lambda row: mostsimn(row=row,num=2), axis=1)
+# similar3 = pd.DataFrame(
+#     {"player": names.flatten(), "most similar": euclidean_matrix_pd["most similar 3"]}
+# )
+# print(similar3)
+
+# Apply the function across each row
 # #Radar chart GUIDE
 
 # import numpy as np
@@ -176,3 +218,65 @@ for i in range(len(matrix)):
 # plt.legend(loc='upper right', bbox_transform=fig.transFigure)
 
 # plt.show()
+
+
+def display_graph(p1, p2):
+
+    categories = [
+                        
+                    "pace",
+                    "dribbling",
+                    "passing_accuracy",
+                    "shooting",
+                    "tackling",
+                    "aerial_duels_won_pct",
+                    "positioning",
+                    "stamina",
+                    "goals_per90",
+                    "assists_per90",
+                    "estimated_value_eur_m" ]
+
+
+    num_vars = len(categories)
+
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+
+    angles += angles[:1]
+
+    p1_data = df[df['name'].str.lower() == p1.lower()]
+    p2_data = df[df['name'].str.lower() == p2.lower()]
+
+    p1_values = p1_data[categories].iloc[0].tolist()
+    p2_values = p2_data[categories].iloc[0].tolist()
+
+    p1_values += p1_values[:1]
+    p2_values += p1_values[:1]
+
+    
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'polar': True})
+    ax.set_thetagrids(np.degrees(angles[:-1]), categories, color='grey', size=10)
+    ax.set_rlabel_position(0)
+
+    plt.yticks([20, 40, 60, 80, 100], ["20", "40", "60", "80", "100"], color="grey", size=7)
+    plt.ylim(0, 100)
+
+    # 5. Plot Player 1 (Teal Line + Dots)
+    ax.plot(angles, p1_values, color="#7a9d2e", linewidth=2, marker='o', label=p1)
+    ax.fill(angles, p1_values, color="#7a9d2e", alpha=0.1)
+
+    # 6. Plot Player 2 (Purple Line + Dots)
+    ax.plot(angles, p2_values, color="#2931A4", linewidth=2, marker='o', label=p2)
+    ax.fill(angles, p2_values, color="#2931A4", alpha=0.1)
+
+    # Add Legend
+    plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1))
+
+    plt.show()
+
+
+
+# display_graph("Thiago Kone","Erik Smith")
+
+
+
+
