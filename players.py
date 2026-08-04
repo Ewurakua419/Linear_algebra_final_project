@@ -40,6 +40,8 @@ class Players:
             print(f"Error: The file {self.file} does not exist. We shall use synthetic data")
 
         self.df['position_encoded'] = self.df['position'].map(encoding)
+
+        # the column names might not be the same across different data sets
         self.matrix_df = self.df[
                         [
                             "pace",
@@ -71,7 +73,7 @@ class Players:
                 [4, 2, 1, 4, 4, 0],  # ST
             ]
         )
-        position_weight = 2
+        position_weight = 10
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix)):
@@ -132,7 +134,7 @@ class Players:
         except:
             return None
 
-    def remove(self, name):# remove a player weve used
+    def remove(self, name):# remove a player we have used
         if name in self.euclidean_matrix_pd["name"]:
             new_matrix=self.euclidean_matrix_pd.drop(columns=[name])
             new_matrix = new_matrix[new_matrix["name"] != name]
@@ -158,3 +160,5 @@ class Players:
         except:
             print("Please ensure that the matrix has the correct structure")
             return None
+
+        
