@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Player Scouting Similarity Report</title>
-    <!-- Simple CSS to center components and style the page -->
+
     <style>
       body {
         font-family: Arial, sans-serif;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        min-height: 100vh;
         margin: 0;
         background-color: #f4f7f6;
       }
+
       .container {
         text-align: center;
         background: white;
@@ -22,41 +23,236 @@
         border-radius: 8px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
-      h1 {
-        color: #333;
-        margin-bottom: 20px;
-      }
-      select {
+
+      input {
         padding: 10px 15px;
         font-size: 16px;
         border-radius: 5px;
         border: 1px solid #ccc;
-        background-color: #fff;
+        width: 250px;
+      }
+
+      #similar-players {
+        margin-top: 20px;
+      }
+      .comparison-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 20px;
+        align-items: center;
+        margin-top: 30px;
+      }
+
+      .player-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      #graph img {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .stat-row {
+        padding: 10px 0;
+      }
+
+      .player-link {
+        background: none;
+        border: none;
+        padding: 5px 0;
+        font-size: 16px;
+        color: #1a5fb4;
         cursor: pointer;
-        width: 200px;
+        text-decoration: underline;
+      }
+
+      .player-link:hover {
+        color: #0b3d91;
       }
     </style>
   </head>
+
   <body>
     <div class="container">
-      <!-- Main Heading -->
       <h1>Player Scouting Similarity Report</h1>
-      <p>Enter a player you want to find a replacement for....</p>
 
-      <!-- Searchable Input Field linked to the Datalist -->
+      <p>Enter a player you want to find a replacement for:</p>
+
       <input
         list="player-names"
-        name="choice"
         id="choice-input"
         placeholder="Eg. Thiago Kone"
       />
 
-      <!-- The list of filtered options -->
       <datalist id="player-names">
         {% for name in player_names %}
-        <option value="{{name}}"></option>
+        <option value="{{ name }}"></option>
         {% endfor %}
       </datalist>
+
+      <div id="similar-players"></div>
+
+      <div class="comparison-container">
+        <div id="player1-stats"></div>
+
+        <div id="graph"></div>
+
+        <div id="player2-stats"></div>
+      </div>
     </div>
+
+    <script>
+      const playerInput = document.getElementById("choice-input");
+      const resultDiv = document.getElementById("similar-players");
+
+      playerInput.addEventListener("change", async function () {
+        const playerName = playerInput.value;
+
+        if (!playerName) {
+          return;
+        }
+
+        const response = await fetch("/similar-players", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: playerName,
+          }),
+        });
+
+        const data = await response.json();
+
+        resultDiv.innerHTML = "";
+
+        if (data.similar_players) {
+          resultDiv.innerHTML = "";
+          const list = document.createElement("ol");
+
+          data.similar_players.forEach((player) => {
+            const listItem = document.createElement("li");
+            const button = document.createElement("button");
+            button.innerText = player;
+            button.classList.add("player-link");
+
+            button.onclick = function () {
+              showStats(playerName, player);
+            };
+
+            listItem.appendChild(button);
+            list.appendChild(listItem);
+          });
+
+          resultDiv.appendChild(list);
+        } else {
+          resultDiv.innerText = data.error;
+        }
+      });
+
+      async function showStats(originalPlayer, selectedPlayer) {
+        const response = await fetch("/compare", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            player1: originalPlayer,
+            player2: selectedPlayer,
+          }),
+        });
+
+        const data = await response.json();
+
+        displayComparison(
+          originalPlayer,
+          data.player1,
+          selectedPlayer,
+          data.player2,
+          data.graph,
+        );
+      }
+
+      function displayComparison(player1, stats1, player2, stats2, graph) {
+        document.getElementById("player1-stats").innerHTML = createStatsCard(
+          player1,
+          stats1,
+        );
+
+        document.getElementById("player2-stats").innerHTML = createStatsCard(
+          player2,
+          stats2,
+        );
+
+        document.getElementById("graph").innerHTML = `
+        <img 
+            src="data:image/png;base64,${graph}"
+            alt="Radar Chart"
+        >
+        `;
+      }
+
+      function createStatsCard(player, playerData) {
+        const info = playerData.info;
+        const stats = playerData.stats;
+
+        const infoLabels = {
+          age: "Age",
+          position: "Position",
+          league: "League",
+          nationality: "Nationality",
+          value: "Market Value (€M)",
+        };
+
+        const statLabels = {
+          pace: "Pace",
+          dribbling: "Dribbling",
+          passing_accuracy: "Passing Accuracy",
+          shooting: "Shooting",
+          tackling: "Tackling",
+          aerial_duels_won_pct: "Aerial Duels Won %",
+          positioning: "Positioning",
+          stamina: "Stamina",
+          goals_per90: "Goals Per 90",
+          assists_per90: "Assists Per 90",
+        };
+
+        return `
+    <div class="player-card">
+
+        <h2>${player}</h2>
+
+        <div class="player-info">
+
+            ${Object.keys(info)
+              .map(
+                (item) => `
+                    <p>
+                        <strong>${infoLabels[item]}</strong>:
+                        ${info[item]}
+                    </p>
+                    `,
+              )
+              .join("")}
+        </div>
+        <hr>
+        <div class="player-stats">
+            ${Object.keys(stats)
+              .map(
+                (stat) => `
+                    <div class="stat-row">
+                        <span>${statLabels[stat]}</span>:
+                        <strong>${stats[stat]}</strong>
+                    </div>
+                    `,
+              )
+              .join("")}
+        </div>
+    </div>
+    `;
+      }
+    </script>
   </body>
 </html>
