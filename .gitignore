@@ -1,2 +1,4 @@
 __pycache__/
 project.cpython-313.pyc
+__pycache__/
+*.pyc

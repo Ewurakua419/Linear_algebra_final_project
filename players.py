@@ -68,8 +68,10 @@ class Players:
 
         np.set_printoptions(suppress=True, precision=2)
         self.file=file
-
-        self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
+        if num>0:
+            self.df = pd.read_csv("synthetic_players.csv", nrows=num, header=0)
+        else:
+            self.df = pd.read_csv("synthetic_players.csv", header=0)
 
         encoding = {
                     'GK': 0,
