@@ -9,9 +9,12 @@ player=Players(num=15)
 
 player.euclidean_distance()
 
-player.comparism()
+#player.comparism()
 
-print(player.similarity()) 
+#print(player.similarity()) 
+print(player.similarity(num=3, player_name = "Erik Smith")) 
+
+# player.individual_similarity("Erik Smith")
 
 
 
