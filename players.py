@@ -162,32 +162,51 @@ class Players:
         )
         return plt.show()
 
-    def similarity(self, num=3):
-        def mostsimn(row, num=num):
-
-            numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
-            
-            # Filter out 0 values
-            non_zero = numeric_row[numeric_row != 0]
-            # Get the 3 smallest values and their column names
-            smallest = non_zero.nsmallest(num)
-
-            # Format the result as a list of "Column: Value" strings
-            return [f"{col}" for col, val in smallest.items()]
+    def mostsimn(self, row, num):
+        numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
         
+        # Filter out 0 values
+        non_zero = numeric_row[numeric_row != 0]
+        # Get the 3 smallest values and their column names
+        smallest = non_zero.nsmallest(num)
+
+        # Format the result as a list of "Column: Value" strings
+        return [f"{col}" for col, val in smallest.items()]
+
+    def similarity(self, num=3):
         try:
             # most similar num rather
             self.euclidean_matrix_pd[f"most similar {num}"] = self.euclidean_matrix_pd.apply(
-                lambda row: mostsimn(row=row, num=num), axis=1
+                lambda row: self.mostsimn(row=row, num=num), axis=1
             )
             self.similar3 = pd.DataFrame(
-                {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd["most similar 3"]}
+                {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd[f"most similar {num}"]}
             )
             return self.similar3
         except Exception as e:
             print(f"Error calculating similarities: {e}")
             return None
 
+    def similar_to(self, player_name, num=3):
+        try:
+            # Find the player's row
+            player_row = self.euclidean_matrix_pd[
+                self.euclidean_matrix_pd["name"] == player_name
+            ]
+
+            if player_row.empty:
+                print(f"Player '{player_name}' not found.")
+                return None
+
+            # Get the actual row
+            row = player_row.iloc[0]
+
+            # Reuse the similarity calculation
+            return self.mostsimn(row, num)
+
+        except Exception as e:
+            print(f"Error finding similar players: {e}")
+            return None
     # def similarity(self, num=3):
     #     # Ensure the similarity matrix exists
     #     if self.euclidean_matrix_pd is None or self.euclidean_matrix_pd.empty:
