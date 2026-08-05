@@ -100,6 +100,7 @@ class Players:
 
         self.matrix_df.columns = self.matrix_df.columns.str.strip()
         self.matrix_df = self.matrix_df.fillna(0)
+        self.euclidean_distance()
 
     def euclidean_distance(self):
         
