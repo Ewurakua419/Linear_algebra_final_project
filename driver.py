@@ -10,26 +10,22 @@ def choice(val):
     return choice
 
 
-print('==== Player Analysis ====\n  Choose dataset')
-start=""
-while start not in ["y" ,"n"]:
-    start= str(input(" Would you like to use your own dataset y/n: ")).lower().strip()
-    if start not in ["y", "n"]:
-        print("Please type either y / n")
+print('==== Player Analysis ====\n')
+
 numy=str(input("Is there a specific number of players you want to check for ? y/n : ")).lower().strip()
 num=0
+player=Players(num=num)
 if numy=="y":
     try:
         num=int(input("Please enter how many users: "))
+        if num<player.matrix_df.shape[0]:
+            print("Invalid number. Using all players.")
+            num=0
+        
     except ValueError:
         print("Invalid number. Using all players.")
-
-if start == "y":
-    filename = str(input("Please enter your file, ensure that it is a .csv file and ends with .csv: ")).strip()
-    player=Players(file=filename, num=num)
-
-else:
     player=Players(num=num)
+    
 
 while ans!=0:
     print('==== Player Analysis ====\n 1. Substitution mode \n 2. Check most similar players \n Enter 0 to exit \n')
