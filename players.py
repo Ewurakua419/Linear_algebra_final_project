@@ -2,7 +2,11 @@ import pandas as pd
 import numpy as np
 import math
 import seaborn as sns
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 
 class Players:
 
@@ -215,7 +219,30 @@ class Players:
         if player.empty:
             return None
 
-        return player.iloc[0].to_dict()
+        player =  player.iloc[0]
+
+        return {
+            "info": {
+                "age": int(player["age"]),
+                "position": player["position"],
+                "league": player["league"],
+                "nationality": player["nationality"],
+                "value": float(player["estimated_value_eur_m"])
+            },
+
+            "stats": {
+                "pace": float(player["pace"]),
+                "dribbling": float(player["dribbling"]),
+                "passing_accuracy": float(player["passing_accuracy"]),
+                "shooting": float(player["shooting"]),
+                "tackling": float(player["tackling"]),
+                "aerial_duels_won_pct": float(player["aerial_duels_won_pct"]),
+                "positioning": float(player["positioning"]),
+                "stamina": float(player["stamina"]),
+                "goals_per90": float(player["goals_per90"]),
+                "assists_per90": float(player["assists_per90"])
+            }
+        }
     
     # def similarity(self, num=3):
     #     # Ensure the similarity matrix exists
@@ -327,12 +354,70 @@ class Players:
         plt.show()
 
 
+    def create_radar_chart(self, p1, p2):
+
+        categories = [
+                            
+                        "pace",
+                        "dribbling",
+                        "passing_accuracy",
+                        "shooting",
+                        "tackling",
+                        "aerial_duels_won_pct",
+                        "positioning",
+                        "stamina",
+                        "goals_per90",
+                        "assists_per90",
+                        "estimated_value_eur_m" ]
 
 
+        num_vars = len(categories)
 
+        angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
 
+        angles += angles[:1]
 
+        p1_data = self.df[self.df['name'].str.lower() == p1.lower()]
+        p2_data = self.df[self.df['name'].str.lower() == p2.lower()]
 
+        p1_values = p1_data[categories].iloc[0].tolist()
+        p2_values = p2_data[categories].iloc[0].tolist()
 
+        p1_values += p1_values[:1]
+        p2_values += p2_values[:1]
 
         
+        fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'polar': True})
+        ax.set_thetagrids(np.degrees(angles[:-1]), categories, color='grey', size=10)
+        ax.set_rlabel_position(0)
+
+        plt.yticks([20, 40, 60, 80, 100], ["20", "40", "60", "80", "100"], color="grey", size=7)
+        plt.ylim(0, 100)
+
+        # 5. Plot Player 1 (Teal Line + Dots)
+        ax.plot(angles, p1_values, color="#D2042D", linewidth=2, marker='o', label=p1)
+        ax.fill(angles, p1_values, color="#D2042D", alpha=0.1)
+
+        # 6. Plot Player 2 (Purple Line + Dots)
+        ax.plot(angles, p2_values, color="#2931A4", linewidth=2, marker='o', label=p2)
+        ax.fill(angles, p2_values, color="#2931A4", alpha=0.1)
+
+        # Add Legend
+        plt.legend(loc='upper right', bbox_to_anchor=(1.1, 1.1))
+
+        buffer = BytesIO()
+        fig.savefig(buffer, format="png", bbox_inches="tight")
+        buffer.seek(0)
+        image = base64.b64encode(buffer.read()).decode()
+        buffer.close()
+        plt.close(fig)
+
+        return image
+
+
+
+
+
+
+
+      

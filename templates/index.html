@@ -35,6 +35,42 @@
       #similar-players {
         margin-top: 20px;
       }
+      .comparison-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 20px;
+        align-items: center;
+        margin-top: 30px;
+      }
+
+      .player-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      #graph img {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .stat-row {
+        padding: 10px 0;
+      }
+
+      .player-link {
+        background: none;
+        border: none;
+        padding: 5px 0;
+        font-size: 16px;
+        color: #1a5fb4;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .player-link:hover {
+        color: #0b3d91;
+      }
     </style>
   </head>
 
@@ -58,7 +94,13 @@
 
       <div id="similar-players"></div>
 
-      <div id="comparison"></div>
+      <div class="comparison-container">
+        <div id="player1-stats"></div>
+
+        <div id="graph"></div>
+
+        <div id="player2-stats"></div>
+      </div>
     </div>
 
     <script>
@@ -88,83 +130,127 @@
 
         if (data.similar_players) {
           resultDiv.innerHTML = "";
+          const list = document.createElement("ol");
 
           data.similar_players.forEach((player) => {
+            const listItem = document.createElement("li");
             const button = document.createElement("button");
-
             button.innerText = player;
+            button.classList.add("player-link");
 
             button.onclick = function () {
               showStats(playerName, player);
             };
 
-            resultDiv.appendChild(button);
+            listItem.appendChild(button);
+            list.appendChild(listItem);
           });
+
+          resultDiv.appendChild(list);
         } else {
           resultDiv.innerText = data.error;
         }
       });
 
       async function showStats(originalPlayer, selectedPlayer) {
-        const response = await fetch("/stats", {
+        const response = await fetch("/compare", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            player: selectedPlayer,
+            player1: originalPlayer,
+            player2: selectedPlayer,
           }),
         });
 
-        const selectedStats = await response.json();
-
-        const originalResponse = await fetch("/stats", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            player: originalPlayer,
-          }),
-        });
-
-        const originalStats = await originalResponse.json();
+        const data = await response.json();
 
         displayComparison(
           originalPlayer,
-          originalStats,
+          data.player1,
           selectedPlayer,
-          selectedStats,
+          data.player2,
+          data.graph,
         );
       }
 
-      function displayComparison(player1, stats1, player2, stats2) {
-        const comparison = document.getElementById("comparison");
+      function displayComparison(player1, stats1, player2, stats2, graph) {
+        document.getElementById("player1-stats").innerHTML = createStatsCard(
+          player1,
+          stats1,
+        );
 
-        comparison.innerHTML = `
-        <h2>Player Comparison</h2>
+        document.getElementById("player2-stats").innerHTML = createStatsCard(
+          player2,
+          stats2,
+        );
 
-        <table border="1">
+        document.getElementById("graph").innerHTML = `
+        <img 
+            src="data:image/png;base64,${graph}"
+            alt="Radar Chart"
+        >
+        `;
+      }
 
-            <tr>
-                <th>Stat</th>
-                <th>${player1}</th>
-                <th>${player2}</th>
-            </tr>
+      function createStatsCard(player, playerData) {
+        const info = playerData.info;
+        const stats = playerData.stats;
 
-            ${Object.keys(stats1)
+        const infoLabels = {
+          age: "Age",
+          position: "Position",
+          league: "League",
+          nationality: "Nationality",
+          value: "Market Value (€M)",
+        };
+
+        const statLabels = {
+          pace: "Pace",
+          dribbling: "Dribbling",
+          passing_accuracy: "Passing Accuracy",
+          shooting: "Shooting",
+          tackling: "Tackling",
+          aerial_duels_won_pct: "Aerial Duels Won %",
+          positioning: "Positioning",
+          stamina: "Stamina",
+          goals_per90: "Goals Per 90",
+          assists_per90: "Assists Per 90",
+        };
+
+        return `
+    <div class="player-card">
+
+        <h2>${player}</h2>
+
+        <div class="player-info">
+
+            ${Object.keys(info)
               .map(
-                (stat) => `
-                <tr>
-                    <td>${stat}</td>
-                    <td>${stats1[stat]}</td>
-                    <td>${stats2[stat]}</td>
-                </tr>
-            `,
+                (item) => `
+                    <p>
+                        <strong>${infoLabels[item]}</strong>:
+                        ${info[item]}
+                    </p>
+                    `,
               )
               .join("")}
-
-        </table>
+        </div>
+        <hr>
+        <div class="player-stats">
+            ${Object.keys(stats)
+              .map(
+                (stat) => `
+                    <div class="stat-row">
+                        <span>${statLabels[stat]}</span>:
+                        <strong>${stats[stat]}</strong>
+                    </div>
+                    `,
+              )
+              .join("")}
+        </div>
+    </div>
     `;
       }
     </script>
