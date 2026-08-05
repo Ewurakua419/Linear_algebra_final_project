@@ -143,12 +143,12 @@ euclidean_matrix_pd = euclidean_matrix_pd.dropna(axis=0, how="all")
 print(euclidean_matrix_pd)
 
 euclidean_matrix_pd_nan=euclidean_matrix_pd.mask(euclidean_matrix_pd==0)
-similar=pd.DataFrame({
-    "player":names.flatten(),
-    "most similar": euclidean_matrix_pd_nan.idxmin(axis=1)
+# similar=pd.DataFrame({
+#     "player":names.flatten(),
+#     "most similar": euclidean_matrix_pd_nan.idxmin(axis=1)
 
-})
-print(similar)
+# })
+# print(similar)
 
 
 # def mostsimn(row, num=3):

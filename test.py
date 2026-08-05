@@ -5,16 +5,16 @@ import sys
 
 
 
-player=Players(num=15)
+player1=Players(num=15)
 
-player.euclidean_distance()
+player1.euclidean_distance()
 
-player.comparism()
+player1.comparism()
 
-print(player.similarity()) 
+print(player1.similarity()) 
 
 
 
      
 
-#player.display_graph("Thiago Kone","Erik Smith")
+#player1.display_graph("Thiago Kone","Erik Smith")
