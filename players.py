@@ -208,6 +208,15 @@ class Players:
         except Exception as e:
             print(f"Error finding similar players: {e}")
             return None
+
+    def get_player_stats(self, player_name):
+        player = self.df[self.df["name"] == player_name]
+
+        if player.empty:
+            return None
+
+        return player.iloc[0].to_dict()
+    
     # def similarity(self, num=3):
     #     # Ensure the similarity matrix exists
     #     if self.euclidean_matrix_pd is None or self.euclidean_matrix_pd.empty:
@@ -294,7 +303,7 @@ class Players:
         p2_values = p2_data[categories].iloc[0].tolist()
 
         p1_values += p1_values[:1]
-        p2_values += p1_values[:1]
+        p2_values += p2_values[:1]
 
         
         fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'polar': True})

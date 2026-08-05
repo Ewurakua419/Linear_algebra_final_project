@@ -57,6 +57,8 @@
       </datalist>
 
       <div id="similar-players"></div>
+
+      <div id="comparison"></div>
     </div>
 
     <script>
@@ -70,7 +72,7 @@
           return;
         }
 
-        const response = await fetch("/process", {
+        const response = await fetch("/similar-players", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -85,25 +87,86 @@
         resultDiv.innerHTML = "";
 
         if (data.similar_players) {
-          const title = document.createElement("h3");
-          title.innerText = `Players similar to ${playerName}:`;
-
-          resultDiv.appendChild(title);
-
-          const list = document.createElement("ul");
+          resultDiv.innerHTML = "";
 
           data.similar_players.forEach((player) => {
-            const item = document.createElement("li");
-            item.innerText = player;
+            const button = document.createElement("button");
 
-            list.appendChild(item);
+            button.innerText = player;
+
+            button.onclick = function () {
+              showStats(playerName, player);
+            };
+
+            resultDiv.appendChild(button);
           });
-
-          resultDiv.appendChild(list);
         } else {
           resultDiv.innerText = data.error;
         }
       });
+
+      async function showStats(originalPlayer, selectedPlayer) {
+        const response = await fetch("/stats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            player: selectedPlayer,
+          }),
+        });
+
+        const selectedStats = await response.json();
+
+        const originalResponse = await fetch("/stats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            player: originalPlayer,
+          }),
+        });
+
+        const originalStats = await originalResponse.json();
+
+        displayComparison(
+          originalPlayer,
+          originalStats,
+          selectedPlayer,
+          selectedStats,
+        );
+      }
+
+      function displayComparison(player1, stats1, player2, stats2) {
+        const comparison = document.getElementById("comparison");
+
+        comparison.innerHTML = `
+        <h2>Player Comparison</h2>
+
+        <table border="1">
+
+            <tr>
+                <th>Stat</th>
+                <th>${player1}</th>
+                <th>${player2}</th>
+            </tr>
+
+            ${Object.keys(stats1)
+              .map(
+                (stat) => `
+                <tr>
+                    <td>${stat}</td>
+                    <td>${stats1[stat]}</td>
+                    <td>${stats2[stat]}</td>
+                </tr>
+            `,
+              )
+              .join("")}
+
+        </table>
+    `;
+      }
     </script>
   </body>
 </html>
