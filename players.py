@@ -142,7 +142,7 @@ class Players:
                 self.euclidean_matrix[i][j] = euclidean_distance + position_weight * position_penalty #add the position penalty with a weight to the final euclidian distance.
 
         self.euclidean_matrix_pd = pd.DataFrame(
-            data=self.euclidean_matrix, columns=self.df[["name"]].to_numpy()
+            data=self.euclidean_matrix, columns=self.df["name"].to_numpy()
         )
         self.euclidean_matrix_pd["name"]=self.df["name"]
         self.euclidean_matrix_pd = self.euclidean_matrix_pd.dropna(axis=1, how="all")
