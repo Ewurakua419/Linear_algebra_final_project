@@ -173,7 +173,8 @@ class Players:
             return [f"{col}" for col, val in smallest.items()]
         
         try:
-            self.euclidean_matrix_pd["most similar 3"] = self.euclidean_matrix_pd.apply(
+            # most similar num rather
+            self.euclidean_matrix_pd[f"most similar {num}"] = self.euclidean_matrix_pd.apply(
                 lambda row: mostsimn(row=row, num=num), axis=1
             )
             self.similar3 = pd.DataFrame(
