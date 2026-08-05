@@ -148,6 +148,9 @@ class Players:
         self.euclidean_matrix_pd = self.euclidean_matrix_pd.dropna(axis=1, how="all")
         self.euclidean_matrix_pd = self.euclidean_matrix_pd.dropna(axis=0)  # , how="all"
 
+    def get_player_names(self):
+        return self.df["name"].tolist()
+    
     def comparism(self):
         sns.heatmap(
             self.euclidean_matrix_pd.loc[:, self.euclidean_matrix_pd.columns != "name"],
