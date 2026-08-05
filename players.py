@@ -251,20 +251,9 @@ class Players:
             return self.curr_matrix
 
     def similarity_matrix(self, matrix,num=3): #do a new similarity check 
-        def mostsimn(row, num=num):
-
-            numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
-
-            # Filter out 0 values
-            non_zero = numeric_row[numeric_row != 0]
-            # Get the 3 smallest values and their column names
-            smallest = non_zero.nsmallest(num)
-
-            # Format the result as a list of "Column: Value" strings
-            return [f"{col}" for col, val in smallest.items()]
         try:
             matrix["most similar 3"] = self.euclidean_matrix_pd.apply(
-                    lambda row: mostsimn(row=row, num=num), axis=1
+                    lambda row: self.mostsimn(row=row, num=num), axis=1
                 )
             similar3 = pd.DataFrame(
                     {"player": matrix[["name"]].to_numpy().flatten(), "most similar":matrix["most similar 3"]}
