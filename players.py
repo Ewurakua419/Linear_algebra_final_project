@@ -162,15 +162,25 @@ class Players:
         return self.df["name"].tolist()
     
     def comparism(self):
+        fig, ax = plt.subplots(figsize=(12, 10))
         sns.heatmap(
             self.euclidean_matrix_pd.loc[:, self.euclidean_matrix_pd.columns != "name"],
             annot=True,
-            fmt = ".0f",
+            fmt = ".1f",
             cmap="coolwarm",
             xticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
             yticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
+            ax=ax
         )
-        return plt.show()
+
+        buffer = BytesIO()
+        fig.savefig(buffer, format="png", bbox_inches="tight")
+        buffer.seek(0)
+        image = base64.b64encode(buffer.read()).decode()
+        buffer.close()
+        plt.close(fig)
+
+        return image
 
     def mostsimn(self, row, num):
         numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
