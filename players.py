@@ -180,7 +180,6 @@ class Players:
 
     def similarity(self, num=3):
         try:
-            # most similar num rather
             self.euclidean_matrix_pd[f"most similar {num}"] = self.euclidean_matrix_pd.apply(
                 lambda row: self.mostsimn(row=row, num=num), axis=1
             )
