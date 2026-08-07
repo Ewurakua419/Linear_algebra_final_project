@@ -86,6 +86,8 @@ class Players:
                     'ST': 5
                 }
 
+        self.df = self.df.fillna(0)
+
         self.matrix_df = self.df[
                         [
                             "pace",
@@ -98,7 +100,6 @@ class Players:
                             "stamina",
                             "goals_per90",
                             "assists_per90",
-                            "estimated_value_eur_m",
                         ]
                     ]
 
@@ -314,8 +315,7 @@ class Players:
                         "positioning",
                         "stamina",
                         "goals_per90",
-                        "assists_per90",
-                        "estimated_value_eur_m" ]
+                        "assists_per90", ]
 
 
         num_vars = len(categories)
@@ -378,8 +378,7 @@ class Players:
                         "positioning",
                         "stamina",
                         "goals_per90",
-                        "assists_per90",
-                        "estimated_value_eur_m" ]
+                        "assists_per90", ]
 
 
         num_vars = len(categories)

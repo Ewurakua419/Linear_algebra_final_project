@@ -32,6 +32,68 @@
         width: 250px;
       }
 
+      .search-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 20px;
+        margin-bottom: 10px;
+      }
+
+      #choice-input {
+        width: 300px;
+        padding: 12px 14px;
+        font-size: 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        outline: none;
+        box-sizing: border-box;
+      }
+
+      input::placeholder {
+        text-align: center;
+        align-items: center;
+      }
+
+      #choice-input:focus {
+        border-color: #64748b;
+      }
+
+      .similar-count-container {
+        display: block;
+        margin: 0 0 10px 0;
+      }
+
+      #similar-count {
+        padding: 11px 12px;
+        font-size: 15px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        outline: none;
+      }
+
+      #similar-count:focus {
+        border-color: #64748b;
+      }
+
+      #apply-button {
+        padding: 11px 20px;
+        font-size: 15px;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        background-color: #1f2937;
+        color: white;
+        cursor: pointer;
+      }
+
+      #apply-button:hover {
+        background-color: #374151;
+      }
+
       #similar-players {
         margin-top: 20px;
       }
@@ -79,18 +141,31 @@
       <h1>Player Scouting Similarity Report</h1>
 
       <p>Enter a player you want to find a replacement for:</p>
+      <div class="search-controls">
+        <input
+          list="player-names"
+          id="choice-input"
+          placeholder="Eg. Thiago Kone"
+        />
 
-      <input
-        list="player-names"
-        id="choice-input"
-        placeholder="Eg. Thiago Kone"
-      />
+        <datalist id="player-names">
+          {% for name in player_names %}
+          <option value="{{ name }}"></option>
+          {% endfor %}
+        </datalist>
+      </div>
+      <div class="similar-count-container">
+        <label for="similar-count">No of similar players:</label>
 
-      <datalist id="player-names">
-        {% for name in player_names %}
-        <option value="{{ name }}"></option>
-        {% endfor %}
-      </datalist>
+        <select id="similar-count">
+          {% for i in range(1, player_names|length) %} {% if i == 3 %}
+          <option value="{{ i }}" selected>{{ i }}</option>
+          {% else %}
+          <option value="{{ i }}">{{ i }}</option>
+          {% endif %} {% endfor %}
+        </select>
+      </div>
+      <button id="apply-button">Apply</button>
 
       <div id="similar-players"></div>
 
@@ -104,11 +179,14 @@
     </div>
 
     <script>
-      const playerInput = document.getElementById("choice-input");
-      const resultDiv = document.getElementById("similar-players");
+      document
+        .getElementById("apply-button")
+        .addEventListener("click", getSimilarPlayers);
 
-      playerInput.addEventListener("change", async function () {
-        const playerName = playerInput.value;
+      async function getSimilarPlayers() {
+        const playerName = document.getElementById("choice-input").value;
+
+        const num = Number(document.getElementById("similar-count").value);
 
         if (!playerName) {
           return;
@@ -116,45 +194,58 @@
 
         const response = await fetch("/similar-players", {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json",
           },
+
           body: JSON.stringify({
-            text: playerName,
+            player: playerName,
+            num: num,
           }),
         });
 
         const data = await response.json();
 
+        displaySimilarPlayers(playerName, data.similar_players);
+      }
+
+      function displaySimilarPlayers(playerName, players) {
+        const resultDiv = document.getElementById("similar-players");
+
         resultDiv.innerHTML = "";
 
-        if (data.similar_players) {
-          resultDiv.innerHTML = "";
-          const list = document.createElement("ol");
+        const heading = document.createElement("h3");
 
-          const heading = document.createElement("h2");
-          heading.innerText = "Players Similar To " + playerName;
-          resultDiv.appendChild(heading);
+        heading.innerText = `Most Similar Players to ${playerName}`;
 
-          data.similar_players.forEach((player) => {
-            const listItem = document.createElement("li");
-            const button = document.createElement("button");
-            button.innerText = player;
-            button.classList.add("player-link");
+        resultDiv.appendChild(heading);
 
-            button.onclick = function () {
-              showStats(playerName, player);
-            };
+        const list = document.createElement("ol");
+        list.style.display = "inline-block";
+        list.style.textAlign = "left";
+        list.style.marginTop = "0";
 
-            listItem.appendChild(button);
-            list.appendChild(listItem);
-          });
+        players.forEach((player) => {
+          const listItem = document.createElement("li");
 
-          resultDiv.appendChild(list);
-        } else {
-          resultDiv.innerText = data.error;
-        }
-      });
+          const button = document.createElement("button");
+
+          button.innerText = player;
+
+          button.classList.add("player-link");
+
+          button.onclick = function () {
+            showStats(playerName, player);
+          };
+
+          listItem.appendChild(button);
+
+          list.appendChild(listItem);
+        });
+
+        resultDiv.appendChild(list);
+      }
 
       async function showStats(originalPlayer, selectedPlayer) {
         const response = await fetch("/compare", {

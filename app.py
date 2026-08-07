@@ -16,18 +16,18 @@ def home():
 
 @app.route('/similar-players', methods=["POST"])
 def get_selected_player():
-  data = request.get_json()
-  player_name = data.get('text', '')
-  similar_players = players_app.similar_to(player_name, 5)
+    data = request.get_json()
+    player_name = data.get("player", "")
+    num = data.get("num", 3)
 
-  if similar_players is None:
-        return jsonify({
-            "error": "Player not found."
-        }), 404
+    similar_players = players_app.similar_to(
+        player_name,
+        num
+    )
 
-  return jsonify({
-      "similar_players": similar_players
-  })
+    return jsonify({
+        "similar_players": similar_players
+      })
 
 
 @app.route("/compare", methods=["POST"])
