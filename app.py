@@ -14,6 +14,16 @@ players_app = Players(num = 15)
 def home():
     return render_template('index.html', player_names=players_app.get_player_names())
 
+
+@app.route("/heatmap")
+def heatmap():
+    image = players_app.comparism()
+
+    return render_template(
+        "heatmap.html",
+        heatmap=image
+    )
+
 @app.route('/similar-players', methods=["POST"])
 def get_selected_player():
     data = request.get_json()
@@ -47,6 +57,7 @@ def compare_players():
         "player2": stats2,
         "graph": graph
     })
+
 
 if __name__ == '__main__':
     # Run the local development server in debug mode

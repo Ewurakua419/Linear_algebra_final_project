@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+from sklearn.preprocessing import StandardScaler
 
 class Players:
 
@@ -110,8 +111,11 @@ class Players:
         self.euclidean_distance()
 
     def euclidean_distance(self):
-        
-        self.matrix = self.matrix_df.to_numpy()
+        #scaling the values to ensure that each value is relevant when calculating the euclidian distance
+        # Using standardization:
+        scaler = StandardScaler()
+
+        self.matrix = scaler.fit_transform(self.matrix_df.to_numpy())
 
         self.euclidean_matrix = np.zeros((len(self.matrix), len(self.matrix)))
         position_distance = np.array(
@@ -125,7 +129,7 @@ class Players:
                 [4, 2, 1, 4, 4, 0],  # ST
             ]
         )
-        position_weight = 10
+        position_weight = 1
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix)):
@@ -160,15 +164,25 @@ class Players:
         return self.df["name"].tolist()
     
     def comparism(self):
+        fig, ax = plt.subplots(figsize=(12, 10))
         sns.heatmap(
             self.euclidean_matrix_pd.loc[:, self.euclidean_matrix_pd.columns != "name"],
             annot=True,
-            fmt = ".0f",
+            fmt = ".1f",
             cmap="coolwarm",
             xticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
             yticklabels=self.euclidean_matrix_pd[["name"]].to_numpy(),
+            ax=ax
         )
-        return plt.show()
+
+        buffer = BytesIO()
+        fig.savefig(buffer, format="png", bbox_inches="tight")
+        buffer.seek(0)
+        image = base64.b64encode(buffer.read()).decode()
+        buffer.close()
+        plt.close(fig)
+
+        return image
 
     def mostsimn(self, row, num):
         numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
