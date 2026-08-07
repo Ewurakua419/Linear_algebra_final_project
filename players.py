@@ -200,10 +200,10 @@ class Players:
             self.euclidean_matrix_pd[f"most similar {num}"] = self.euclidean_matrix_pd.apply(
                 lambda row: self.mostsimn(row=row, num=num), axis=1
             )
-            self.similar3 = pd.DataFrame(
-                {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd["most similar 3"]}
+            self.similar_num = pd.DataFrame(
+                {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd[f"most similar {num}"]}
             )
-            return self.similar3
+            return self.similar_num
         except Exception as e:
             print(f"Error calculating similarities: {e}")
             return None
