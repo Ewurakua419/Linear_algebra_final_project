@@ -132,6 +132,10 @@
           resultDiv.innerHTML = "";
           const list = document.createElement("ol");
 
+          const heading = document.createElement("h2");
+          heading.innerText = "Players Similar To " + playerName;
+          resultDiv.appendChild(heading);
+
           data.similar_players.forEach((player) => {
             const listItem = document.createElement("li");
             const button = document.createElement("button");
