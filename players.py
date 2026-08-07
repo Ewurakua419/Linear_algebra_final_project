@@ -84,6 +84,8 @@ class Players:
                     'ST': 5
                 }
 
+        self.df = self.df.fillna(0)
+
         self.matrix_df = self.df[
                         [
                             "pace",
