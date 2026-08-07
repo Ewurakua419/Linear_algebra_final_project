@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+from sklearn.preprocessing import StandardScaler
 
 class Players:
 
@@ -108,8 +109,11 @@ class Players:
         self.euclidean_distance()
 
     def euclidean_distance(self):
-        
-        self.matrix = self.matrix_df.to_numpy()
+        #scaling the values to ensure that each value is relevant when calculating the euclidian distance
+        # Using standardization:
+        scaler = StandardScaler()
+
+        self.matrix = scaler.fit_transform(self.matrix_df.to_numpy())
 
         self.euclidean_matrix = np.zeros((len(self.matrix), len(self.matrix)))
         position_distance = np.array(
@@ -123,7 +127,7 @@ class Players:
                 [4, 2, 1, 4, 4, 0],  # ST
             ]
         )
-        position_weight = 10
+        position_weight = 1
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix)):
