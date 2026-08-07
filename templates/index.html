@@ -187,6 +187,9 @@
     </div>
 
     <script>
+      const playerNames = Array.from(
+        document.querySelectorAll("#player-names option"),
+      ).map((option) => option.value);
       document
         .getElementById("apply-button")
         .addEventListener("click", getSimilarPlayers);
@@ -197,6 +200,11 @@
         const num = Number(document.getElementById("similar-count").value);
 
         if (!playerName) {
+          return;
+        }
+
+        if (!playerNames.includes(playerName)) {
+          alert("Please select a valid player from the list.");
           return;
         }
 
