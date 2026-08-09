@@ -11,7 +11,7 @@ player1.euclidean_distance()
 
 player1.comparism()
 
-print(player1.similarity()) 
+#print(player1.similarity()) 
 
 
 
