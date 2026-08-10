@@ -61,4 +61,4 @@ def compare_players():
 
 if __name__ == '__main__':
     # Run the local development server in debug mode
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
