@@ -182,13 +182,13 @@ class Players:
 
         return image
 
-    def mostsimn(self, row, num):
+    def mostsimn(self, row, num, player_name):
         numeric_row = pd.to_numeric(row, errors='coerce').astype(float)
         
         # Filter out 0 values
-        non_zero = numeric_row[numeric_row != 0]
+        numeric_row = numeric_row.drop(player_name, errors='ignore')
         # Get the 3 smallest values and their column names
-        smallest = non_zero.nsmallest(num)
+        smallest = numeric_row.nsmallest(num)
 
         # Format the result as a list of "Column: Value" strings
         return [f"{col}" for col, val in smallest.items()]
@@ -196,7 +196,7 @@ class Players:
     def similarity(self, num=3):
         try:
             self.euclidean_matrix_pd[f"most similar {num}"] = self.euclidean_matrix_pd.apply(
-                lambda row: self.mostsimn(row=row, num=num), axis=1
+                lambda row: self.mostsimn(row=row, num=num, player_name=row["name"]), axis=1
             )
             self.similar_num = pd.DataFrame(
                 {"player": self.euclidean_matrix_pd[["name"]].to_numpy().flatten(), "most similar": self.euclidean_matrix_pd[f"most similar {num}"]}
@@ -221,7 +221,7 @@ class Players:
             row = player_row.iloc[0]
 
             # Reuse the similarity calculation
-            return self.mostsimn(row, num)
+            return self.mostsimn(row, num, player_name)
 
         except Exception as e:
             print(f"Error finding similar players: {e}")
