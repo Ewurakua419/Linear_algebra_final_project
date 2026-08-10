@@ -227,6 +227,9 @@
       }
 
       function displaySimilarPlayers(playerName, players) {
+        document.getElementById("player1-stats").innerHTML = "";
+        document.getElementById("player2-stats").innerHTML = "";
+        document.getElementById("graph").innerHTML = "";
         const resultDiv = document.getElementById("similar-players");
 
         resultDiv.innerHTML = "";
