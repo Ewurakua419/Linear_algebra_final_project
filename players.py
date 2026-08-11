@@ -72,7 +72,11 @@ class Players:
                 [4, 2, 1, 4, 4, 0],  # ST
             ]
         )
-        position_weight = 1
+        overall_weight = 3 # directly multiply this to the matrix instead of the final answer
+
+        position_distance = position_distance * overall_weight
+
+        print(position_distance)
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix)):
@@ -95,7 +99,7 @@ class Players:
                 position_penalty = position_distance[player1_position][player2_position]  # type: ignore
 
                 self.euclidean_matrix[i][j] = (
-                    euclidean_distance + position_weight * position_penalty
+                    euclidean_distance + position_penalty
                 )  # add the position penalty with a weight to the final euclidian distance.
 
         self.euclidean_matrix_pd = pd.DataFrame(
