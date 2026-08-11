@@ -72,11 +72,11 @@ class Players:
                 [4, 2, 1, 4, 4, 0],  # ST
             ]
         )
-        overall_weight = 3 # directly multiply this to the matrix instead of the final answer
+        overall_weight = 3 # directly multiply this to the matrix 
 
         position_distance = position_distance * overall_weight
 
-        print(position_distance)
+        
 
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix)):
