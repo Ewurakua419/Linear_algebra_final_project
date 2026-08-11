@@ -46,6 +46,13 @@ class Players:
         self.matrix_df = self.matrix_df.fillna(0)
         self.euclidean_distance()
 
+    def original_player_vectors(self,num):
+        return self.matrix_df.to_numpy()[:num, :]
+
+    def scaled_player_vectors(self,num):
+            scaler = StandardScaler()
+            return scaler.fit_transform(self.matrix_df.to_numpy())[:num, :]
+
     def euclidean_distance(self):
         # scaling the values to ensure that each value is relevant when calculating the euclidian distance
         # Using standardization:
@@ -98,7 +105,12 @@ class Players:
         self.euclidean_matrix_pd = self.euclidean_matrix_pd.dropna(axis=1, how="all")
         self.euclidean_matrix_pd = self.euclidean_matrix_pd.dropna(
             axis=0
-        )  # , how="all"
+        )  
+
+    def get_euclidean_matrix(self):
+        return self.euclidean_matrix_pd
+
+    
 
     def get_player_names(self):
         return self.df["name"].tolist()
@@ -131,7 +143,7 @@ class Players:
         
         # Filter out 0 values
         numeric_row = numeric_row.drop(player_name, errors='ignore')
-        # Get the 3 smallest values and their column names
+        # Get the smallest values and their column names
         smallest = numeric_row.nsmallest(num)
 
         # Format the result as a list of "Column: Value" strings
@@ -153,7 +165,7 @@ class Players:
             print(f"Error calculating similarities: {e}")
             return None
 
-    def similar_to(self, player_name, num=3):
+    def similar_to(self, player_name, num):
         try:
             # Find the player's row
             player_row = self.euclidean_matrix_pd[

@@ -22,8 +22,7 @@ This project is a **Player Similarity System** designed to evaluate and quantify
 The core files driving this repository include:
 *   `app.py`: The main entry point script for the system.
 *   `synthetic_players.csv`: The core dataset containing the attributes matrix for evaluation.
-*   `project.py` / `players.py` / `driver.py`: Supporting logic processing mathematical data arrays and distances.
-*   `shapes.py`: Helper script likely responsible for constructing the geometric radar chart visualizations.
+*   `concepts.py` / `players.py` / `driver.py`: Supporting logic processing mathematical data arrays and distances.
 *   `templates/`: UI layout or rendering configurations if utilized via a framework dashboard.
 
 ### Installation
